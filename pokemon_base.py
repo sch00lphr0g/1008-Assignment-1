@@ -5,6 +5,16 @@ from abc import ABC
 from enum import Enum
 from data_structures.referential_array import ArrayR
 
+file = open("type_effectiveness.csv", 'r')
+file = file.read().split("\n")
+effectivenessData = ArrayR(len(file)-1)
+for i in range(1,len(file)):
+    row = file[i].split(",")
+    rowArray = ArrayR(len(row))
+    for j in range(0, len(row)):
+        rowArray[j] = row[j]
+    effectivenessData[i-1]=rowArray
+
 class PokeType(Enum):
     """
     This class contains all the different types that a Pokemon could belong to
@@ -29,26 +39,25 @@ class TypeEffectiveness:
     """
     Represents the type effectiveness of one Pokemon type against another.
     """
-
     @classmethod
     def get_effectiveness(cls, attack_type: PokeType, defend_type: PokeType) -> float:
         """
         Returns the effectiveness of one Pokemon type against another, as a float.
 
-        Parameters:
+        Parameters:`
             attack_type (PokeType): The type of the attacking Pokemon.
             defend_type (PokeType): The type of the defending Pokemon.
 
         Returns:
             float: The effectiveness of the attack, as a float value between 0 and 4.
         """
-        raise NotImplementedError
+        return effectivenessData[attack_type.value][defend_type.value]
 
     def __len__(self) -> int:
         """
         Returns the number of types of Pokemon
         """
-        raise NotImplementedError
+        return len[effectivenessData]
 
 
 class Pokemon(ABC): # pylint: disable=too-few-public-methods, too-many-instance-attributes
