@@ -7,26 +7,51 @@ class PokeTeam:
     TEAM_LIMIT = 6
     POKE_LIST = get_all_pokemon_types()
 
+
     def __init__(self):
-        raise NotImplementedError
+        self.length = 0
+        self.team = ArrayR[self.TEAM_LIMIT]
+        self.referenceTeam = ArrayR[self.TEAM_LIMIT]
 
     def choose_manually(self):
-        raise NotImplementedError
+        if self.length < 6:
+            for i in range(0,len(self.POKE_LIST)):
+                print(f"{i}: {self.POKE_LIST[i]}")
+            choice = input("Choose your pokemon:\n")
+            self.team[len(self.TEAM)] = self.POKE_LIST[choice]
+            self.referenceTeam[len(self.TEAM)] = self.POKE_LIST[choice]
+            self.length += 1
+            return
+        else:
+            print("team is already full")
+            return
 
     def choose_randomly(self) -> None:
-        raise NotImplementedError
+        choice = random.randint(0,len(self.POKE_LIST))
+        if self.length < 6:
+            self.team[len(self.TEAM)] = self.POKE_LIST[choice]
+            self.referenceTeam[len(self.TEAM)] = self.POKE_LIST[choice]
+            self.length += 1
 
-    def regenerate_team(self) -> None:
-        raise NotImplementedError
+    def regenerate_team(self, battle_mode, criterion=None) -> None:
+        for i in range(len(self)):
+            self.team[i] = self.referenceTeam[i]
+    
+    def special():
+        pass
 
     def __getitem__(self, index: int):
-        raise NotImplementedError
+        if index in range(len(self)):
+            return self.team[index]
 
     def __len__(self):
-        raise NotImplementedError
+        return self.length
 
     def __str__(self):
-        raise NotImplementedError
+        out = ""
+        for i in self.team:
+            out += self.team[i] + "\n"
+        return out
 
 class Trainer:
 
