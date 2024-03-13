@@ -4,6 +4,7 @@ This module contains PokeType, TypeEffectiveness and an abstract version of the 
 from abc import ABC
 from enum import Enum
 from data_structures.referential_array import ArrayR
+from data_structures.bset import BSet
 
 file = open("type_effectiveness.csv", 'r')
 file = file.read().split("\n")

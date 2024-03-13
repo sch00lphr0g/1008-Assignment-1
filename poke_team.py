@@ -7,7 +7,6 @@ class PokeTeam:
     TEAM_LIMIT = 6
     POKE_LIST = get_all_pokemon_types()
 
-
     def __init__(self):
         self.length = 0
         self.team = ArrayR[self.TEAM_LIMIT]
@@ -18,7 +17,7 @@ class PokeTeam:
             for i in range(0,len(self.POKE_LIST)):
                 print(f"{i}: {self.POKE_LIST[i]}")
             choice = input("Choose your pokemon:\n")
-            self.team[len(self.TEAM)] = self.POKE_LIST[choice]
+            self.team[len(self.TEAM)] = self.POKE_LIST[int(choice)]
             self.referenceTeam[len(self.TEAM)] = self.POKE_LIST[choice]
             self.length += 1
             return
@@ -54,27 +53,37 @@ class PokeTeam:
         return out
 
 class Trainer:
-
+    
     def __init__(self, name) -> None:
-        raise NotImplementedError
+        self.name = name
+        self.team = PokeTeam()
+        self.pokedex = BSet()
 
     def pick_team(self, method: str) -> None:
-        raise NotImplementedError
+        if method == "Manual":
+            self.team.choose_manually()
+        elif method == "Random":
+            self.team.choose_randomly()
 
     def get_team(self) -> PokeTeam:
-        raise NotImplementedError
+        return self.team
 
     def get_name(self) -> str:
-        raise NotImplementedError
+        return self.name
 
     def register_pokemon(self, pokemon: Pokemon) -> None:
-        raise NotImplementedError
+        index = PokeType[str(pokemon.poketype)] + 1
+        self.pokedex.add(index)
 
     def get_pokedex_completion(self) -> float:
-        raise NotImplementedError
+        return round(len(self.pokedex)/len(PokeType),2)
 
     def __str__(self) -> str:
-        raise NotImplementedError
+        out = ""
+        completion = self.get_pokedex_completion()
+        out += f"Trainer: {self.name}\n"
+        out += f"Pokedex: {completion}"
+        return out
 
 if __name__ == '__main__':
     t = Trainer('Ash')
