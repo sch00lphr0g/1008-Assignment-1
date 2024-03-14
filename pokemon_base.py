@@ -3,15 +3,15 @@ This module contains PokeType, TypeEffectiveness and an abstract version of the 
 """
 from abc import ABC
 from enum import Enum
-from data_structures.referential_array import ArrayR
+from data_structures.referential_array import ArrayR as AR
 from data_structures.bset import BSet
 
 file = open("type_effectiveness.csv", 'r')
 file = file.read().split("\n")
-effectivenessData = ArrayR(len(file)-1)
+effectivenessData = AR(len(file)-1)
 for i in range(1,len(file)):
     row = file[i].split(",")
-    rowArray = ArrayR(len(row))
+    rowArray = AR(len(row))
     for j in range(0, len(row)):
         rowArray[j] = row[j]
     effectivenessData[i-1]=rowArray
@@ -70,6 +70,7 @@ class Pokemon(ABC): # pylint: disable=too-few-public-methods, too-many-instance-
         Initializes a new instance of the Pokemon class.
         """
         self.health = None
+        self.hp = None
         self.level = None
         self.poketype = None
         self.battle_power = None
@@ -88,13 +89,23 @@ class Pokemon(ABC): # pylint: disable=too-few-public-methods, too-many-instance-
         """
         return self.name
 
-    def get_health(self) -> int:
+    def get_hp(self) -> int:
         """
         Returns the current health of the Pokemon.
 
         Returns:
             int: The current health of the Pokemon.
         """
+        return self.hp
+    
+    def set_hp(self, target: int):
+        if target <= self.health:
+            self.hp = target
+            return
+        else:
+            raise(ValueError("cant heal beyond max health"))
+
+    def get_health(self) -> int:
         return self.health
 
     def get_level(self) -> int:
@@ -171,7 +182,8 @@ class Pokemon(ABC): # pylint: disable=too-few-public-methods, too-many-instance-
         Returns:
             int: The damage that this Pokemon inflicts on the other Pokemon during an attack.
         """
-        raise NotImplementedError
+        multiplier = TypeEffectiveness.get_effectiveness(self, other_pokemon)
+        return self.attack * multiplier
 
     def defend(self, damage: int) -> None:
         """
@@ -182,7 +194,7 @@ class Pokemon(ABC): # pylint: disable=too-few-public-methods, too-many-instance-
             damage (int): The amount of damage to be inflicted on the Pokemon.
         """
         effective_damage = damage/2 if damage < self.get_defence() else damage
-        self.health = self.health - effective_damage
+        self.hp = self.hp - effective_damage
 
     def level_up(self) -> None:
         """
@@ -199,7 +211,10 @@ class Pokemon(ABC): # pylint: disable=too-few-public-methods, too-many-instance-
         Evolves the Pokemon to the next stage in its evolution line, and updates
           its attributes accordingly.
         """
-        raise NotImplementedError
+        evolution = self.get_evolution()
+        nextevo = evolution[evolution.index(self.name)+1]
+        self.name = nextevo
+        self.battle_power, self.health, self.hp, self.speed, self.defence *= 1.5
 
     def is_alive(self) -> bool:
         """
@@ -208,12 +223,14 @@ class Pokemon(ABC): # pylint: disable=too-few-public-methods, too-many-instance-
         Returns:
             bool: True if the Pokemon is still alive, False otherwise.
         """
-        return self.get_health() > 0
+        return self.get_hp() > 0
 
     def __str__(self):
         """
         Return a string representation of the Pokemon instance in the format:
         <name> (Level <level>) with <health> health and <experience> experience
         """
-        return f"{self.name} (Level {self.level}) with {self.get_health()} health \
+        return f"{self.name} (Level {self.level}) with {self.get_hp()} health \
                 and {self.get_experience()} experience"
+
+

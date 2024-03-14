@@ -1,6 +1,8 @@
 from pokemon import *
 import random
 from typing import List
+from data_structures.stack_adt import ArrayStack as AS
+
 
 class PokeTeam:
     random.seed(20)
@@ -9,16 +11,17 @@ class PokeTeam:
 
     def __init__(self):
         self.length = 0
-        self.team = ArrayR[self.TEAM_LIMIT]
-        self.referenceTeam = ArrayR[self.TEAM_LIMIT]
-
+        self.team = AR[self.TEAM_LIMIT]
+        self.order = AR[self.TEAM_LIMIT]
+        self.reset_order()
+        
+        
     def choose_manually(self):
         if self.length < 6:
             for i in range(0,len(self.POKE_LIST)):
                 print(f"{i}: {self.POKE_LIST[i]}")
             choice = input("Choose your pokemon:\n")
-            self.team[len(self.TEAM)] = self.POKE_LIST[int(choice)]
-            self.referenceTeam[len(self.TEAM)] = self.POKE_LIST[choice]
+            self.team[len(self.TEAM)] = self.POKE_LIST[int(choice)]()
             self.length += 1
             return
         else:
@@ -28,16 +31,61 @@ class PokeTeam:
     def choose_randomly(self) -> None:
         choice = random.randint(0,len(self.POKE_LIST))
         if self.length < 6:
-            self.team[len(self.TEAM)] = self.POKE_LIST[choice]
-            self.referenceTeam[len(self.TEAM)] = self.POKE_LIST[choice]
+            self.team[len(self.TEAM)] = self.POKE_LIST[int(choice)]()
             self.length += 1
+        return
 
     def regenerate_team(self, battle_mode, criterion=None) -> None:
         for i in range(len(self)):
-            self.team[i] = self.referenceTeam[i]
+            self.team[i].set_hp(self.team[i].get_health())
+
+    def sort(self, criterion, order):
+        values = AR(len(self))
+        self.reset_order()
+        for i in range(len(self)):
+            pokemon = self.team[i]
+            if criterion == "health":
+                values[i] = pokemon.get_hp()
+            elif criterion == "speed":
+                values[i] = pokemon.get_speed()
+            elif criterion == "attack":
+                values[i] = pokemon.get_battle_power()
+            elif criterion == "level":
+                values[i] = pokemon.get_level()
+            elif criterion == "defence":
+                values[i] = pokemon.get_defence()
+        #values list create, now sort list
+        operations = None
+        while operations != 0:
+            operations = 0
+            #bubble sorting values in ascending order, but also changes self.order the same way its sorted
+            for i in range(len(self)-1):
+                if values[i] > values[i+1]:
+                    hold = values[i+1]
+                    values[i+1] = values[i]
+                    values[i] = hold
+                    self.order[i] = i+1
+                    self.order[i+1] = i
+                    operations += 1
+        #using a stack to reverse self.order if the parameter is descending
+        if order == "descending":
+            reverser = AS(len(self))
+            for i in range(len(self)):
+                reverser.push(self.order[i])
+            for i in range(len(self)):
+                self.order[i] = reverser.pop()
+
+
+    def get_order(self):
+        return self.order
     
+    def reset_order(self):
+        for i in range(self.TEAM_LIMIT):
+            self.order[i] = i
+
     def special():
         pass
+
 
     def __getitem__(self, index: int):
         if index in range(len(self)):
@@ -64,6 +112,7 @@ class Trainer:
             self.team.choose_manually()
         elif method == "Random":
             self.team.choose_randomly()
+        self.team.regenerate_team()
 
     def get_team(self) -> PokeTeam:
         return self.team
